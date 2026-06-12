@@ -54,28 +54,26 @@ Layout "A": the **bookshelf sits on top**, the **unsorted pile sits below it**.
 
 | Level | Grade | Book count | Sort rule | Shelf mode |
 |-------|-------|-----------|-----------|------------|
-| 1 | 2 | 5 | Fiction, by author's **first letter** (all different) | Fixed empty slots |
-| 2 | 3 | 6 | Fiction, by author — **same first letter**, compare 2nd/3rd | Fixed empty slots |
-| 3 | 4 | 7 | Dewey **whole numbers** (e.g. 591, 636, 921) + a little fiction | Insert into sorted row |
-| 4 | 5 | 8 | Dewey **one decimal** (e.g. 636.1 vs 636.7) | A few pre-placed + insert |
-| 5 | 6 | 10 | Dewey **two close decimals** (e.g. 636.73 vs 636.78) + fiction mixed | A few pre-placed + insert |
+| 1 | 2 | 5 | Fiction, by author's **first letter** (all different) | Empty slots |
+| 2 | 3 | 6 | Fiction, by author — **same first letter**, compare 2nd/3rd | Empty slots |
+| 3 | 4 | 7 | Dewey **whole numbers** (e.g. 591, 636, 921) + a little fiction | Empty slots |
+| 4 | 5 | 8 | Dewey **one decimal** (e.g. 636.1 vs 636.7) | A few pre-placed anchors |
+| 5 | 6 | 10 | Dewey **two close decimals** (e.g. 636.73 vs 636.78) + fiction mixed | A few pre-placed anchors |
 
-Difficulty rises through (1) more books, (2) closer decimal places, and (3) a
-more demanding shelf-interaction mode.
+Difficulty rises through (1) more books and (2) closer decimal places.
 
 ### Shelf interaction modes
 
-All three modes share one ordering engine (an ordered list of positions, each
-with a single correct book). They differ only in presentation:
+Both modes share one ordering engine (an ordered list of positions, each with a
+single correct book). The unsorted pile is **shuffled** at the start of every
+level, and a book may be dropped into **any** empty slot — the slot checks
+whether that specific book belongs at that position, so students can build the
+shelf in whatever order they like. The two modes differ only in the starting
+state:
 
-- **Fixed empty slots** (Levels 1–2): every position renders as a visible empty
-  slot. Dropping a book on a slot checks whether that book belongs in that
-  position.
-- **Insert into sorted row** (Level 3): only placed books and the gaps between
-  them are shown; dropping a book into a gap assigns it that ordered position
-  and checks correctness against its neighbors.
-- **Pre-placed + insert** (Levels 4–5): the shelf starts with a few books
-  already correctly placed and locked; the student inserts the rest.
+- **Empty slots** (Levels 1–3): every position renders as a visible empty slot.
+- **Pre-placed anchors** (Levels 4–5): the shelf starts with a few books already
+  correctly placed and locked; the student fills the remaining empty slots.
 
 ## Sorting Rule
 

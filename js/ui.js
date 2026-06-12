@@ -54,7 +54,6 @@ function renderShelf() {
   const shelf = $("shelf");
   shelf.innerHTML = "";
   const boundary = fictionBoundary(state.order);
-  const active = activeSlotIndex();
 
   state.slots.forEach((book, i) => {
     if (i === boundary && boundary > 0) {
@@ -69,7 +68,6 @@ function renderShelf() {
       const slot = document.createElement("div");
       slot.className = "slot";
       slot.dataset.index = i;
-      if (i === active) slot.classList.add("active");
       shelf.appendChild(slot);
     }
   });
@@ -81,16 +79,20 @@ function renderPile() {
   for (const book of pileBooks()) pile.appendChild(spineEl(book, { draggable: true }));
 }
 
-// Books not yet placed on the shelf, in their original (scrambled) order.
+// Books not yet placed on the shelf, kept in their shuffled pile order.
 function pileBooks() {
   const placedTitles = new Set(state.slots.filter(Boolean).map((b) => b.title));
-  return state.level.books.filter((b) => !placedTitles.has(b.title));
+  return state.pileOrder.filter((b) => !placedTitles.has(b.title));
 }
 
-// For "insert" mode, only the leftmost empty slot is active; other modes accept any empty slot.
-function activeSlotIndex() {
-  if (state.level.mode !== "insert") return -1;
-  return state.slots.findIndex((b) => b === null);
+// Fisher-Yates shuffle on a copy, so the pile never hands out the answer in order.
+function shuffled(books) {
+  const a = [...books];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 // ---- Level lifecycle ----------------------------------------------------
@@ -99,7 +101,7 @@ function startLevel(level) {
   const slots = order.map((_, i) => null);
   // Pre-place locked anchor books at their correct positions.
   for (const i of level.preplaced) slots[i] = order[i];
-  state = { level, order, slots };
+  state = { level, order, slots, pileOrder: shuffled(level.books) };
   $("levelTitle").textContent = level.name;
   $("instructions").textContent = level.instructions;
   $("menu").style.display = "none";
@@ -164,12 +166,6 @@ function endDrag(e) {
 
 // ---- Placement rule -----------------------------------------------------
 function tryPlace(book, slotIndex) {
-  const active = activeSlotIndex();
-  if (active !== -1 && slotIndex !== active) {
-    showHint("Fill the shelf from the left — start with the empty slot that glows.");
-    bounceBack();
-    return;
-  }
   if (isCorrectPlacement(book, slotIndex, state.level.books)) {
     state.slots[slotIndex] = book;
     hideHint();

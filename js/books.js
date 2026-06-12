@@ -8,7 +8,6 @@
 //
 // Each level: { id, grade, name, instructions, mode, preplaced, books }
 //   mode "fixed"     — all slots empty; place books in any order.
-//   mode "insert"    — fill the shelf left-to-right in ascending order.
 //   mode "preplaced" — some slots start locked; fill the rest in any order.
 //   preplaced        — slot indices that start filled (only used by "preplaced").
 (function (root, factory) {
@@ -66,8 +65,8 @@
       id: 3,
       grade: 4,
       name: "Level 3 · Grade 4",
-      instructions: "Shelve the number books from smallest to biggest, then the storybooks. Fill the shelf left to right.",
-      mode: "insert",
+      instructions: "Shelve the number books from smallest to biggest, then the storybooks.",
+      mode: "fixed",
       preplaced: [],
       books: withColors([
         dew("Grimm's Fairy Tales", "Jacob Grimm", "398.2", "GRI"),
