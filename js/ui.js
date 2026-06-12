@@ -1,9 +1,14 @@
 // DOM rendering, pointer drag-and-drop, and the per-level game flow.
 // All ordering correctness lives in engine.js; this file only wires it to the page.
-import { LEVELS } from "./books.js";
-import { correctOrder, isCorrectPlacement, hintFor } from "./engine.js";
+// Classic script: reads ShelfBooks/ShelfEngine globals set by the earlier <script>
+// tags. This lets the game run by double-clicking index.html (file:// URL), where
+// ES module imports would be blocked by CORS.
+(function () {
+  "use strict";
+  const { LEVELS } = window.ShelfBooks;
+  const { correctOrder, isCorrectPlacement, hintFor } = window.ShelfEngine;
 
-const $ = (id) => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
 // ---- Current-level state ------------------------------------------------
 let state = null; // { level, order, slots: (book|null)[], locked: bool[] }
@@ -211,3 +216,4 @@ function hideHint() {
 $("backBtn").addEventListener("click", backToMenu);
 $("successBtn").addEventListener("click", backToMenu);
 renderMenu();
+})();

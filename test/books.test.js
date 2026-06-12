@@ -1,7 +1,7 @@
-import { test } from "node:test";
-import assert from "node:assert/strict";
-import { LEVELS } from "../js/books.js";
-import { correctOrder, compareBooks } from "../js/engine.js";
+const { test } = require("node:test");
+const assert = require("node:assert/strict");
+const { LEVELS } = require("../js/books.js");
+const { correctOrder, compareBooks } = require("../js/engine.js");
 
 const expectedCounts = { 1: 5, 2: 6, 3: 7, 4: 8, 5: 10 };
 

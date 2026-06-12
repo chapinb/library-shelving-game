@@ -1,10 +1,6 @@
-import { test } from "node:test";
-import assert from "node:assert/strict";
-import {
-  correctOrder,
-  isCorrectPlacement,
-  hintFor,
-} from "../js/engine.js";
+const { test } = require("node:test");
+const assert = require("node:assert/strict");
+const { correctOrder, isCorrectPlacement, hintFor } = require("../js/engine.js");
 
 // Test fixtures: minimal books, not the real curated data.
 const fiction = (title, cutter) => ({ title, callType: "fiction", dewey: null, cutter });
