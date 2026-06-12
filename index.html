@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shelf It! — Library Sorting Game</title>
+  <style>
+    :root {
+      --wood: #7a5230;
+      --wood-dark: #5e3d22;
+      --parchment: #f5ecd9;
+      --tan: #e7d9bd;
+      --border: #b8a072;
+      --ink: #3a2c18;
+      --good: #2e8b57;
+      --bad: #c0392b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #fbf6ea, #e7d9bd);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: none;
+    }
+    h1 { text-align: center; margin: 16px 0 4px; font-size: 2rem; color: var(--wood); }
+    .tagline { text-align: center; margin: 0 0 16px; color: #8a734a; }
+
+    /* ---- Menu ---- */
+    #menu { max-width: 640px; margin: 0 auto; padding: 16px; }
+    .level-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .level-card {
+      background: var(--parchment); border: 2px solid var(--border); border-radius: 12px;
+      padding: 16px; cursor: pointer; text-align: center; transition: transform .08s, box-shadow .08s;
+    }
+    .level-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,.12); }
+    .level-card h3 { margin: 0 0 4px; color: var(--wood); }
+    .level-card p { margin: 0; font-size: .85rem; color: #6b5a3c; }
+
+    /* ---- Game ---- */
+    #game { max-width: 920px; margin: 0 auto; padding: 8px 16px 40px; display: none; }
+    .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .btn {
+      background: var(--wood); color: #fff; border: none; border-radius: 8px;
+      padding: 8px 14px; font: inherit; cursor: pointer;
+    }
+    .btn:hover { background: var(--wood-dark); }
+    .level-title { font-weight: bold; color: var(--wood); }
+    .instructions {
+      background: var(--parchment); border: 2px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; margin-bottom: 10px; font-size: 1.05rem;
+    }
+
+    .shelf-wrap { background: var(--tan); border: 2px solid var(--border); border-radius: 12px; padding: 12px; }
+    .shelf {
+      background: var(--wood); border-radius: 6px; padding: 12px 12px 16px;
+      box-shadow: inset 0 -8px 0 var(--wood-dark);
+      display: flex; gap: 8px; align-items: flex-end; min-height: 150px;
+      overflow-x: auto;
+    }
+    .divider {
+      flex: 0 0 auto; align-self: stretch; width: 4px; margin: 0 4px;
+      background: repeating-linear-gradient(0deg, #f5ecd9, #f5ecd9 6px, transparent 6px, transparent 12px);
+      border-radius: 2px; position: relative;
+    }
+    .divider span {
+      position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
+      font-size: .65rem; color: #f5ecd9; white-space: nowrap;
+    }
+
+    .slot {
+      flex: 0 0 auto; width: 48px; height: 132px;
+      border: 2px dashed #caa46c; border-radius: 4px; background: rgba(255,255,255,.10);
+    }
+    .slot.active { border-color: #ffe39a; box-shadow: 0 0 0 2px #ffe39a inset; }
+    .slot.over { background: rgba(255,255,255,.28); }
+
+    .spine {
+      flex: 0 0 auto; width: 48px; height: 132px; border-radius: 4px;
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+      color: #fff; padding: 5px 3px; box-shadow: 1px 0 3px rgba(0,0,0,.35);
+      cursor: grab; position: relative;
+    }
+    .spine .cn {
+      background: rgba(255,255,255,.9); color: #222; border-radius: 2px;
+      padding: 1px 3px; font-size: .62rem; font-weight: bold; white-space: nowrap;
+    }
+    .spine .title { font-size: .6rem; line-height: 1.1; text-align: center; overflow: hidden; }
+    .spine .cutter { font-size: .7rem; font-weight: bold; letter-spacing: .04em; }
+    .spine.locked { cursor: default; }
+    .spine.correct { animation: pop .35s ease; }
+    .spine.dragging { opacity: .35; }
+    .spine.clone { position: fixed; z-index: 1000; pointer-events: none; cursor: grabbing; margin: 0; }
+
+    @keyframes pop { 0% { transform: scale(.7); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    .shake { animation: shake .3s; }
+
+    .pile-label { margin: 14px 0 6px; font-weight: bold; color: var(--wood); }
+    .pile {
+      display: flex; flex-wrap: wrap; gap: 10px; min-height: 150px;
+      background: var(--parchment); border: 2px dashed var(--border); border-radius: 10px; padding: 12px;
+    }
+    .pile .spine:nth-child(odd) { transform: rotate(-3deg); }
+    .pile .spine:nth-child(even) { transform: rotate(3deg); }
+
+    .hint {
+      margin-top: 12px; min-height: 1.4em; text-align: center; font-size: 1.05rem;
+      color: var(--bad); font-weight: bold; visibility: hidden;
+    }
+    .hint.show { visibility: visible; }
+
+    /* ---- Success overlay ---- */
+    #success {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+      background: rgba(58,44,24,.55); z-index: 2000;
+    }
+    #success .card {
+      background: var(--parchment); border: 3px solid var(--border); border-radius: 16px;
+      padding: 32px 40px; text-align: center; max-width: 360px;
+    }
+    #success h2 { color: var(--good); margin-top: 0; font-size: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>📚 Shelf It!</h1>
+  <p class="tagline">Put the library books in the right order.</p>
+
+  <section id="menu">
+    <div class="level-grid" id="levelGrid"></div>
+  </section>
+
+  <section id="game">
+    <div class="topbar">
+      <button class="btn" id="backBtn">← Levels</button>
+      <span class="level-title" id="levelTitle"></span>
+    </div>
+    <div class="instructions" id="instructions"></div>
+    <div class="shelf-wrap"><div class="shelf" id="shelf"></div></div>
+    <div class="pile-label">Unsorted books — drag them onto the shelf</div>
+    <div class="pile" id="pile"></div>
+    <div class="hint" id="hint"></div>
+  </section>
+
+  <div id="success">
+    <div class="card">
+      <h2>🎉 You did it!</h2>
+      <p id="successMsg">Every book is in the right place.</p>
+      <button class="btn" id="successBtn">Choose another level</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>
