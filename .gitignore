@@ -1,0 +1,6 @@
+# Brainstorming visual-companion working files
+.superpowers/
+
+# OS / editor noise
+.DS_Store
+*.swp
