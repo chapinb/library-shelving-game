@@ -1,0 +1,10 @@
+{
+  "name": "library-shelving-game",
+  "version": "0.1.0",
+  "description": "Drag-and-drop game teaching K-6 students to shelve books by call number.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}
