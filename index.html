@@ -24,7 +24,6 @@
       min-height: 100vh;
       -webkit-user-select: none;
       user-select: none;
-      touch-action: none;
     }
     h1 { text-align: center; margin: 16px 0 4px; font-size: 2rem; color: var(--wood); }
     .tagline { text-align: center; margin: 0 0 16px; color: #8a734a; }
@@ -82,6 +81,9 @@
       display: flex; flex-direction: column; align-items: center; justify-content: space-between;
       color: #fff; padding: 5px 3px; box-shadow: 1px 0 3px rgba(0,0,0,.35);
       cursor: grab; position: relative;
+      /* Only suppress browser panning on the books themselves, so dragging works
+         on touch devices while the rest of the page still scrolls normally. */
+      touch-action: none;
     }
     .spine .cn {
       background: rgba(255,255,255,.9); color: #222; border-radius: 2px;
