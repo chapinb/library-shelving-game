@@ -17,9 +17,12 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
+  // Spine colors. All chosen dark enough that white spine text clears the WCAG
+  // 4.5:1 contrast ratio for small text (the gold/olive/brown were lightened-up
+  // tints before and failed).
   const COLORS = [
-    "#3b6ea5", "#a5453b", "#4a8a5c", "#8a5ca5", "#c0852a",
-    "#2a8a8a", "#a53b6e", "#6e7a2a", "#5c5ca5", "#a56e3b",
+    "#3b6ea5", "#a5453b", "#3f7a4f", "#8a5ca5", "#946012",
+    "#1f7a7a", "#a53b6e", "#566021", "#5c5ca5", "#7a4f24",
   ];
 
   // Helper builders keep the level tables readable.

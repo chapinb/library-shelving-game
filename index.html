@@ -71,13 +71,13 @@
     }
 
     .slot {
-      flex: 0 0 auto; width: 48px; height: 132px;
+      flex: 0 0 auto; width: 56px; height: 132px;
       border: 2px dashed #caa46c; border-radius: 4px; background: rgba(255,255,255,.10);
     }
     .slot.over { background: rgba(255,255,255,.28); }
 
     .spine {
-      flex: 0 0 auto; width: 48px; height: 132px; border-radius: 4px;
+      flex: 0 0 auto; width: 56px; height: 132px; border-radius: 4px;
       display: flex; flex-direction: column; align-items: center; justify-content: space-between;
       color: #fff; padding: 5px 3px; box-shadow: 1px 0 3px rgba(0,0,0,.35);
       cursor: grab; position: relative;
@@ -86,11 +86,17 @@
       touch-action: none;
     }
     .spine .cn {
-      background: rgba(255,255,255,.9); color: #222; border-radius: 2px;
-      padding: 1px 3px; font-size: .62rem; font-weight: bold; white-space: nowrap;
+      background: rgba(255,255,255,.95); color: #1a1a1a; border-radius: 2px;
+      padding: 1px 3px; font-size: .72rem; font-weight: bold; white-space: nowrap;
     }
-    .spine .title { font-size: .6rem; line-height: 1.1; text-align: center; overflow: hidden; }
-    .spine .cutter { font-size: .7rem; font-weight: bold; letter-spacing: .04em; }
+    .spine .title {
+      font-size: .7rem; line-height: 1.15; text-align: center; overflow: hidden;
+      text-shadow: 0 1px 2px rgba(0,0,0,.55);
+    }
+    .spine .cutter {
+      font-size: .82rem; font-weight: bold; letter-spacing: .04em;
+      text-shadow: 0 1px 2px rgba(0,0,0,.55);
+    }
     .spine.locked { cursor: default; }
     .spine.correct { animation: pop .35s ease; }
     .spine.dragging { opacity: .35; }
