@@ -36,6 +36,13 @@ for (const level of LEVELS) {
   test(`level ${level.id} every book has a spine color`, () => {
     for (const b of level.books) assert.match(b.color, /^#[0-9a-f]{6}$/i);
   });
+
+  test(`level ${level.id} has unique book titles`, () => {
+    // The UI identifies books by title (pile filtering, flash-on-correct),
+    // so duplicate titles within a level would make books vanish or mis-flash.
+    const titles = level.books.map((b) => b.title);
+    assert.equal(new Set(titles).size, titles.length, "duplicate title in level");
+  });
 }
 
 test("mixed levels shelve all nonfiction before any fiction", () => {
