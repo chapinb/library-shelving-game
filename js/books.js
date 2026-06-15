@@ -42,40 +42,43 @@
     fic("The Wednesday Surprise", "Eve Bunting", "BUN", [2, 4]),
     fic("The Summer of the Swans", "Betsy Byars", "BYA", [4, 6]),
     fic("Charlotte's Web", "E.B. White", "WHI", [3, 5]),
-    // Nonfiction, 0 decimals
-    dew("Grimm's Fairy Tales", "Jacob Grimm", "398.2", "GRI", [3, 6]),
-    dew("The Planets", "Gail Gibbons", "523", "GIB", [3, 5]),
-    dew("Wild Animals", "Anna Reed", "591", "REE", [3, 5]),
-    dew("All About Dogs", "Wendy Gaglio", "636", "GAG", [3, 5]),
-    dew("Fun Card Games", "Ray Hoyle", "795", "HOY", [3, 6]),
-    dew("Crafts for Kids", "Tessa Quill", "745", "QUI", [3, 6]),
-    dew("Party Games", "Polly Day", "793", "DAY", [3, 6]),
-    dew("Mammals of the World", "Owen Fox", "599", "FOX", [3, 6]),
-    dew("The Human Body", "Hana Lin", "612", "LIN", [3, 6]),
-    dew("Weather Watch", "Nora Skye", "551", "SKY", [3, 6]),
-    // Nonfiction, 1 decimal
-    dew("Dinosaur Days", "Dougal Dixon", "567.9", "DIX", [4, 6]),
-    dew("Bug World", "Patricia Pye", "595.7", "PYE", [4, 6]),
-    dew("Sharks!", "Mara Muston", "597.3", "MUS", [4, 6]),
-    dew("Reptiles Up Close", "Leo Vance", "597.9", "VAN", [4, 6]),
-    dew("Frogs and Toads", "Tina Webb", "597.8", "WEB", [4, 6]),
-    dew("All About Birds", "Robin Hale", "598.0", "HAL", [4, 6]),
-    dew("Horses and Ponies", "Beth Budd", "636.1", "BUD", [4, 6]),
-    dew("Backyard Chickens", "Hen Poole", "636.5", "POO", [4, 6]),
-    dew("Caring for Dogs", "Wendy Gaglio", "636.7", "GAG", [4, 6]),
-    dew("Caring for Cats", "Ella White", "636.8", "WHI", [4, 6]),
-    dew("Your First Fish Tank", "Finn Carr", "639.3", "CAR", [4, 6]),
-    // Nonfiction, 2 decimals
-    dew("Exploring Mars", "Iris Zimmer", "523.43", "ZIM", [5, 6]),
-    dew("Journey to Jupiter", "Cara Bradley", "523.45", "BRA", [5, 6]),
-    dew("Whales of the Deep", "Anna Reed", "599.51", "REE", [5, 6]),
-    dew("Dolphin Friends", "Della Pike", "599.53", "PIK", [5, 6]),
-    dew("Grizzly Bears", "Ursula Penn", "599.78", "PEN", [5, 6]),
-    dew("Wild Wolves", "Mia Marsh", "599.77", "MAR", [5, 6]),
-    dew("Puppy Training", "Dan Adams", "636.72", "ADA", [5, 6]),
-    dew("Labrador Love", "Bea Barr", "636.73", "BAR", [5, 6]),
-    dew("Show Dogs", "Cole Coleman", "636.75", "COL", [5, 6]),
-    dew("Pugs and Bulldogs", "Sam Smith", "636.78", "SMI", [5, 6]),
+    // Nonfiction — whole-number Dewey (broad subject classes; Level 3).
+    dew("World Folktales", "Jane Yolen", "398", "YOL", [3, 6]),       // 398 folklore
+    dew("Exploring the Night Sky", "Gail Gibbons", "520", "GIB", [3, 5]), // 520 astronomy
+    dew("Animals Everywhere", "Anna Reed", "590", "REE", [3, 5]),     // 590 zoology
+    dew("Mammals of the World", "Owen Fox", "599", "FOX", [3, 6]),    // 599 mammals
+    dew("The Human Body", "Hana Lin", "612", "LIN", [3, 6]),          // 612 human physiology
+    dew("How Cars Work", "Dan Day", "629", "DAY", [3, 6]),            // 629 vehicle engineering
+    dew("Taking Care of Pets", "Wendy Gaglio", "636", "GAG", [3, 5]), // 636 animal husbandry
+    dew("Party Games", "Polly Park", "793", "PAR", [3, 6]),           // 793 indoor games
+    // Nonfiction — one-decimal Dewey (Level 4).
+    dew("Grimm's Fairy Tales", "Jacob Grimm", "398.2", "GRI", [3, 6]), // 398.2 fairy tales
+    dew("The Planets", "Gail Gibbons", "523.4", "GIB", [3, 5]),       // 523.4 planets
+    dew("Dinosaur Days", "Dougal Dixon", "567.9", "DIX", [4, 6]),     // 567.9 dinosaurs
+    dew("Bug World", "Patricia Pye", "595.7", "PYE", [4, 6]),         // 595.7 insects
+    dew("Sharks!", "Mara Muston", "597.3", "MUS", [4, 6]),            // 597.3 sharks
+    dew("Frogs and Toads", "Tina Webb", "597.8", "WEB", [4, 6]),      // 597.8 frogs & toads
+    dew("Eagles and Hawks", "Robin Hale", "598.9", "HAL", [4, 6]),    // 598.9 birds of prey
+    dew("Whales of the Deep", "Anna Reed", "599.5", "REE", [5, 6]),   // 599.5 whales
+    dew("Horses and Ponies", "Beth Budd", "636.1", "BUD", [4, 6]),    // 636.1 horses
+    dew("Caring for Dogs", "Wendy Gaglio", "636.7", "GAG", [4, 6]),   // 636.7 dogs
+    dew("Caring for Cats", "Ella White", "636.8", "WHI", [4, 6]),     // 636.8 cats
+    dew("Your First Fish Tank", "Finn Carr", "639.3", "CAR", [4, 6]), // 639.3 fishkeeping
+    dew("Crafts for Kids", "Tessa Quill", "745.5", "QUI", [3, 6]),    // 745.5 handicrafts
+    dew("Fun Card Games", "Ray Hoyle", "795.4", "HOY", [3, 6]),       // 795.4 card games
+    // Nonfiction — two-decimal Dewey (Level 5).
+    dew("Exploring Mars", "Iris Zimmer", "523.43", "ZIM", [5, 6]),    // 523.43 Mars
+    dew("Journey to Jupiter", "Cara Bradley", "523.45", "BRA", [5, 6]), // 523.45 Jupiter
+    dew("Saturn's Rings", "Seth Snow", "523.46", "SNO", [5, 6]),      // 523.46 Saturn
+    dew("All About Snakes", "Nadia Boyd", "597.96", "BOY", [5, 6]),   // 597.96 snakes
+    dew("Dolphin Friends", "Della Pike", "599.53", "PIK", [5, 6]),    // 599.53 dolphins
+    dew("Deer and Elk", "Frank Fenn", "599.65", "FEN", [5, 6]),       // 599.65 deer
+    dew("Wild Wolves", "Mia Marsh", "599.77", "MAR", [5, 6]),         // 599.77 wolves
+    dew("Grizzly Bears", "Ursula Penn", "599.78", "PEN", [5, 6]),     // 599.78 bears
+    dew("Puppy Training", "Dan Adams", "636.72", "ADA", [5, 6]),      // 636.72 dog breeds
+    dew("Labrador Love", "Bea Barr", "636.73", "BAR", [5, 6]),        // 636.73 dog breeds
+    dew("Show Dogs", "Cole Coleman", "636.75", "COL", [5, 6]),        // 636.75 sporting dogs
+    dew("Pugs and Bulldogs", "Sam Smith", "636.76", "SMI", [5, 6]),   // 636.76 dog breeds
   ];
 
   const LEVELS = [
