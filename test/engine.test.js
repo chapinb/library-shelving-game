@@ -125,3 +125,29 @@ test("sampleLevel respects maxGrade", () => {
   const picked = sampleLevel(level, db, seeded(2));
   assert.ok(picked.every((b) => b.grades[0] <= 3));
 });
+
+const dew = (dewey, cutter, grades = [4, 6]) =>
+  ({ title: cutter, author: cutter, callType: "dewey", dewey, cutter, grades });
+
+const NONFIC = [
+  dew("523", "GIB"), dew("591", "REE"), dew("398.2", "GRI"), dew("636", "GAG"),
+  dew("567.9", "DIX"), dew("595.7", "PYE"), dew("597.3", "MUS"), dew("636.1", "BUD"),
+  dew("523.43", "ZIM"), dew("523.45", "BRA"), dew("636.72", "ADA"), dew("636.73", "BAR"),
+];
+
+test("dewey sample matches the requested decimal depth", () => {
+  const level = { count: 3, criteria: { type: "dewey", deweyDecimals: 1 } };
+  const picked = sampleLevel(level, NONFIC, seeded(5));
+  assert.equal(picked.length, 3);
+  assert.ok(picked.every((b) => /^\d+\.\d$/.test(b.dewey)));
+});
+
+test("mixed sample has the right fiction/nonfiction split, nonfiction sorts first", () => {
+  const db = NONFIC.concat(FIC_DB);
+  const level = { count: 5, criteria: { type: "mixed", ficCount: 2, deweyDecimals: 0 } };
+  const picked = sampleLevel(level, db, seeded(7));
+  assert.equal(picked.filter((b) => b.callType === "fiction").length, 2);
+  assert.equal(picked.filter((b) => b.callType === "dewey").length, 3);
+  const order = correctOrder(picked).map((b) => b.callType);
+  assert.equal(order.indexOf("fiction"), order.lastIndexOf("dewey") + 1);
+});
