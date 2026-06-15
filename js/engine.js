@@ -43,11 +43,19 @@
   // relative to the book that actually belongs in that spot. The "before/after"
   // wording follows the real shelf order so the hint is always factually correct.
   function hintFor(droppedBook, expectedBook) {
+    // Different sections: the rule that matters is "number books before story
+    // books," not the letters/numbers within a section. Compare letters or
+    // numbers only when both books live in the same section.
+    if (sectionRank(droppedBook) !== sectionRank(expectedBook)) {
+      return droppedBook.callType === "fiction"
+        ? "Story books go after the number books — this spot is for a number book."
+        : "Number books go before the story books — this spot is for a story book.";
+    }
     const [first, second] =
       compareBooks(droppedBook, expectedBook) < 0
         ? [droppedBook, expectedBook]
         : [expectedBook, droppedBook];
-    if (droppedBook.callType === "fiction" || expectedBook.callType === "fiction") {
+    if (droppedBook.callType === "fiction") {
       return `${first.cutter} comes before ${second.cutter} — compare the letters.`;
     }
     return `${first.dewey} comes before ${second.dewey} — compare the numbers.`;

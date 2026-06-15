@@ -64,3 +64,22 @@ test("hintFor compares letters for fiction books", () => {
   assert.match(hint, /ADL/);
   assert.match(hint, /letter/i);
 });
+
+test("hintFor explains the section rule, not letters, for fiction dropped on a number slot", () => {
+  const dropped = fiction("Abbie", "ABB");
+  const expected = dewey("Wild Animals", "591", "REE");
+  const hint = hintFor(dropped, expected);
+  // Must not tell the child to "compare the letters" of a cutter vs a number,
+  // and must not falsely claim the cutter order is reversed.
+  assert.doesNotMatch(hint, /letter/i);
+  assert.doesNotMatch(hint, /number.*come.*before.*\d/);
+  assert.match(hint, /story books?/i);
+});
+
+test("hintFor explains the section rule for a number book dropped on a story slot", () => {
+  const dropped = dewey("Wild Animals", "591", "REE");
+  const expected = fiction("Abbie", "ABB");
+  const hint = hintFor(dropped, expected);
+  assert.doesNotMatch(hint, /letter/i);
+  assert.match(hint, /number books?/i);
+});
