@@ -314,5 +314,18 @@ function hideHint() {
 // ---- Wire up ------------------------------------------------------------
 $("backBtn").addEventListener("click", backToMenu);
 $("successBtn").addEventListener("click", backToMenu);
+
+// Make the win dialog behave like a modal: Escape dismisses it, and Tab is
+// trapped on its only control so focus can't wander to the hidden game behind.
+$("success").addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    backToMenu();
+  } else if (e.key === "Tab") {
+    e.preventDefault();
+    $("successBtn").focus();
+  }
+});
+
 renderMenu();
 })();
