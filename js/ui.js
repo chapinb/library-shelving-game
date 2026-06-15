@@ -16,6 +16,12 @@ let state = null; // { level, order, slots: (book|null)[], locked: bool[] }
 // The call-number text shown on a spine.
 const callLabel = (book) => (book.callType === "fiction" ? "FIC" : book.dewey);
 
+// How a book's call number reads aloud, e.g. "fiction, Seuss" or "Dewey 591, Reed".
+const spokenCall = (book) =>
+  book.callType === "fiction"
+    ? `fiction, ${book.cutter}`
+    : `Dewey ${book.dewey}, ${book.cutter}`;
+
 // Build a spine element for a book. `draggable` controls whether it can be picked up.
 function spineEl(book, { draggable }) {
   const el = document.createElement("div");
@@ -26,8 +32,22 @@ function spineEl(book, { draggable }) {
     <span class="cn">${callLabel(book)}</span>
     <span class="title">${book.title}</span>
     <span class="cutter">${book.cutter}</span>`;
-  if (draggable) el.addEventListener("pointerdown", (e) => startDrag(e, book, el));
-  else el.classList.add("locked");
+  if (draggable) {
+    el.tabIndex = 0;
+    el.setAttribute("role", "button");
+    el.setAttribute("aria-pressed", "false");
+    el.setAttribute("aria-label", `${book.title}, ${spokenCall(book)}. Press Enter to pick up.`);
+    el.addEventListener("pointerdown", (e) => startDrag(e, book, el));
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        selectBook(book);
+      }
+    });
+  } else {
+    el.classList.add("locked");
+    el.setAttribute("aria-label", `${book.title}, ${spokenCall(book)}, already shelved.`);
+  }
   return el;
 }
 
@@ -38,8 +58,17 @@ function renderMenu() {
   for (const level of LEVELS) {
     const card = document.createElement("div");
     card.className = "level-card";
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `${level.name}, ${level.books.length} books`);
     card.innerHTML = `<h3>${level.name}</h3><p>${level.books.length} books</p>`;
     card.addEventListener("click", () => startLevel(level));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        startLevel(level);
+      }
+    });
     grid.appendChild(card);
   }
 }
@@ -68,9 +97,52 @@ function renderShelf() {
       const slot = document.createElement("div");
       slot.className = "slot";
       slot.dataset.index = i;
+      slot.tabIndex = 0;
+      slot.setAttribute("role", "button");
+      slot.setAttribute("aria-label", `Empty spot ${i + 1} of ${state.slots.length}. Pick a book, then choose this spot.`);
+      slot.addEventListener("click", () => placeSelected(i));
+      slot.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          placeSelected(i);
+        }
+      });
       shelf.appendChild(slot);
     }
   });
+}
+
+// ---- Select-then-place (keyboard + tap; an alternative to dragging) -----
+function announce(text) {
+  $("live").textContent = text;
+}
+
+// Pick up / put down a book from the pile. Toggling the same book deselects it.
+function selectBook(book) {
+  state.selected = state.selected && state.selected.title === book.title ? null : book;
+  updateSelectionUI();
+  announce(state.selected ? `${book.title} picked up. Now choose a spot.` : `${book.title} put down.`);
+}
+
+// Reflect the current selection on the pile spines (highlight + aria-pressed).
+function updateSelectionUI() {
+  const sel = state.selected;
+  $("pile").querySelectorAll(".spine").forEach((el) => {
+    const on = sel != null && el.dataset.title === sel.title;
+    el.classList.toggle("selected", on);
+    el.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+// Place the currently selected book into slot `i`, if one is selected.
+function placeSelected(i) {
+  if (!state.selected) {
+    announce("Pick a book from the pile first.");
+    return;
+  }
+  const book = state.selected;
+  state.selected = null;
+  tryPlace(book, i);
 }
 
 function renderPile() {
@@ -101,7 +173,7 @@ function startLevel(level) {
   const slots = order.map((_, i) => null);
   // Pre-place locked anchor books at their correct positions.
   for (const i of level.preplaced) slots[i] = order[i];
-  state = { level, order, slots, pileOrder: shuffled(level.books) };
+  state = { level, order, slots, pileOrder: shuffled(level.books), selected: null };
   $("levelTitle").textContent = level.name;
   $("instructions").textContent = level.instructions;
   $("menu").style.display = "none";
@@ -110,6 +182,8 @@ function startLevel(level) {
   hideHint();
   renderShelf();
   renderPile();
+  const firstBook = $("pile").querySelector(".spine");
+  if (firstBook) firstBook.focus();
 }
 
 function backToMenu() {
@@ -117,6 +191,8 @@ function backToMenu() {
   $("game").style.display = "none";
   $("success").style.display = "none";
   $("menu").style.display = "block";
+  const firstCard = $("levelGrid").querySelector(".level-card");
+  if (firstCard) firstCard.focus();
 }
 
 // ---- Drag and drop (pointer events: mouse + touch) ----------------------
@@ -131,7 +207,11 @@ function startDrag(e, book, originEl) {
   clone.style.height = `${rect.height}px`;
   document.body.appendChild(clone);
   originEl.classList.add("dragging");
-  drag = { book, originEl, clone, offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top };
+  drag = {
+    book, originEl, clone,
+    offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
+    startX: e.clientX, startY: e.clientY, moved: false,
+  };
   moveClone(e);
   window.addEventListener("pointermove", moveClone);
   window.addEventListener("pointerup", endDrag);
@@ -139,6 +219,7 @@ function startDrag(e, book, originEl) {
 
 function moveClone(e) {
   if (!drag) return;
+  if (Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 6) drag.moved = true;
   drag.clone.style.left = `${e.clientX - drag.offsetX}px`;
   drag.clone.style.top = `${e.clientY - drag.offsetY}px`;
   const slot = slotUnder(e);
@@ -156,12 +237,19 @@ function endDrag(e) {
   window.removeEventListener("pointermove", moveClone);
   window.removeEventListener("pointerup", endDrag);
   const slot = slotUnder(e);
-  const { book } = drag;
+  const { book, moved } = drag;
   drag.clone.remove();
   document.querySelectorAll(".slot.over").forEach((s) => s.classList.remove("over"));
   drag = null;
-  if (slot) tryPlace(book, Number(slot.dataset.index));
-  else renderPile(); // dropped in empty space — restore the spine
+  if (!moved) {
+    renderPile(); // a tap, not a drag — select the book instead of placing it
+    selectBook(book);
+  } else if (slot) {
+    state.selected = null;
+    tryPlace(book, Number(slot.dataset.index));
+  } else {
+    renderPile(); // dragged into empty space — restore the spine
+  }
 }
 
 // ---- Placement rule -----------------------------------------------------
@@ -171,11 +259,15 @@ function tryPlace(book, slotIndex) {
     hideHint();
     renderShelf();
     renderPile();
+    updateSelectionUI();
     flashCorrect(slotIndex);
     if (pileBooks().length === 0) win();
+    else announce(`Yes! ${book.title} is in the right spot.`);
   } else {
+    state.selected = null;
     showHint(hintFor(book, state.order[slotIndex]));
     bounceBack();
+    updateSelectionUI();
   }
 }
 
@@ -196,6 +288,8 @@ function flashCorrect(slotIndex) {
 function win() {
   $("successMsg").textContent = `${state.level.name}: every book is in the right place!`;
   $("success").style.display = "flex";
+  announce(`You did it! ${state.level.name} complete.`);
+  $("successBtn").focus();
 }
 
 // ---- Hints --------------------------------------------------------------
