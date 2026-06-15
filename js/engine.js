@@ -128,5 +128,12 @@
     throw new Error(`could not sample level ${level.id}`);
   }
 
-  return { compareBooks, correctOrder, isCorrectPlacement, hintFor, sampleLevel };
+  // n positions spread evenly over [0, total-1]; [] for n<=0, [0] for n===1.
+  function anchorIndices(n, total) {
+    if (n <= 0) return [];
+    if (n === 1) return [0];
+    return Array.from({ length: n }, (_, i) => Math.round((i * (total - 1)) / (n - 1)));
+  }
+
+  return { compareBooks, correctOrder, isCorrectPlacement, hintFor, sampleLevel, anchorIndices };
 });

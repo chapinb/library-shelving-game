@@ -151,3 +151,14 @@ test("mixed sample has the right fiction/nonfiction split, nonfiction sorts firs
   const order = correctOrder(picked).map((b) => b.callType);
   assert.equal(order.indexOf("fiction"), order.lastIndexOf("dewey") + 1);
 });
+
+const { anchorIndices } = require("../js/engine.js");
+
+test("anchorIndices spaces n locked positions across the shelf", () => {
+  assert.deepEqual(anchorIndices(0, 8), []);
+  assert.deepEqual(anchorIndices(1, 8), [0]);
+  assert.deepEqual(anchorIndices(2, 8), [0, 7]);
+  assert.deepEqual(anchorIndices(3, 10), [0, 5, 9]);
+  const idx = anchorIndices(3, 10);
+  assert.equal(new Set(idx).size, idx.length); // no duplicates
+});
