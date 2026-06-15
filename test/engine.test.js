@@ -83,3 +83,45 @@ test("hintFor explains the section rule for a number book dropped on a story slo
   assert.doesNotMatch(hint, /letter/i);
   assert.match(hint, /number books?/i);
 });
+
+const { sampleLevel } = require("../js/engine.js");
+
+// Deterministic RNG (mulberry32) so samples are reproducible in tests.
+function seeded(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const fic = (cutter, grades = [2, 3]) =>
+  ({ title: cutter, author: cutter, callType: "fiction", dewey: null, cutter, grades });
+
+const FIC_DB = ["ADL","BAR","BLU","BRO","BUN","BYA","COL","DAH","LOB","MOR","PAR","SEU","WHI","ZIM"]
+  .map((c) => fic(c));
+
+test("fiction 'distinct' sample has the right count and all distinct first letters", () => {
+  const level = { count: 5, criteria: { type: "fiction", maxGrade: 3, firstLetters: "distinct" } };
+  const picked = sampleLevel(level, FIC_DB, seeded(1));
+  assert.equal(picked.length, 5);
+  const firsts = picked.map((b) => b.cutter[0]);
+  assert.equal(new Set(firsts).size, 5);
+});
+
+test("fiction 'shared' sample has the right count and one shared first letter", () => {
+  const cluster = ["BAR","BLU","BRO","BUN","BYA","BEE","BOO"].map((c) => fic(c));
+  const level = { count: 6, criteria: { type: "fiction", maxGrade: 4, firstLetters: "shared" } };
+  const picked = sampleLevel(level, cluster.concat(FIC_DB), seeded(3));
+  assert.equal(picked.length, 6);
+  assert.equal(new Set(picked.map((b) => b.cutter[0])).size, 1);
+});
+
+test("sampleLevel respects maxGrade", () => {
+  const db = [fic("AAA", [5, 6]), fic("BBB", [2, 3]), fic("CCC", [2, 3]), fic("DDD", [2, 3])];
+  const level = { count: 3, criteria: { type: "fiction", maxGrade: 3, firstLetters: "distinct" } };
+  const picked = sampleLevel(level, db, seeded(2));
+  assert.ok(picked.every((b) => b.grades[0] <= 3));
+});
