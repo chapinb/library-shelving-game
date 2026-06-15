@@ -5,10 +5,18 @@
 // ES module imports would be blocked by CORS.
 (function () {
   "use strict";
-  const { LEVELS } = window.ShelfBooks;
-  const { correctOrder, isCorrectPlacement, hintFor } = window.ShelfEngine;
+  const { BOOKS, LEVELS } = window.ShelfBooks;
+  const { correctOrder, isCorrectPlacement, hintFor, sampleLevel, anchorIndices } = window.ShelfEngine;
 
   const $ = (id) => document.getElementById(id);
+
+  // Spine colors. All dark enough that white spine text clears WCAG 4.5:1 for
+  // small text. Assigned per sampled book at play time (was per-level in books.js).
+  const COLORS = [
+    "#3b6ea5", "#a5453b", "#3f7a4f", "#8a5ca5", "#946012",
+    "#1f7a7a", "#a53b6e", "#566021", "#5c5ca5", "#7a4f24",
+  ];
+  const withColors = (books) => books.map((b, i) => ({ ...b, color: COLORS[i % COLORS.length] }));
 
 // ---- Current-level state ------------------------------------------------
 let state = null; // { level, order, slots: (book|null)[], locked: bool[] }
@@ -60,8 +68,8 @@ function renderMenu() {
     card.className = "level-card";
     card.tabIndex = 0;
     card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `${level.name}, ${level.books.length} books`);
-    card.innerHTML = `<h3>${level.name}</h3><p>${level.books.length} books</p>`;
+    card.setAttribute("aria-label", `${level.name}, ${level.count} books`);
+    card.innerHTML = `<h3>${level.name}</h3><p>${level.count} books</p>`;
     card.addEventListener("click", () => startLevel(level));
     card.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -169,11 +177,12 @@ function shuffled(books) {
 
 // ---- Level lifecycle ----------------------------------------------------
 function startLevel(level) {
-  const order = correctOrder(level.books);
-  const slots = order.map((_, i) => null);
-  // Pre-place locked anchor books at their correct positions.
-  for (const i of level.preplaced) slots[i] = order[i];
-  state = { level, order, slots, pileOrder: shuffled(level.books), selected: null };
+  const books = withColors(sampleLevel(level, BOOKS, Math.random));
+  const order = correctOrder(books);
+  const slots = order.map(() => null);
+  // Pre-place locked anchor books at evenly-spaced positions as anchors.
+  for (const i of anchorIndices(level.preplaced, order.length)) slots[i] = order[i];
+  state = { level, books, order, slots, pileOrder: shuffled(books), selected: null };
   $("levelTitle").textContent = level.name;
   $("instructions").textContent = level.instructions;
   $("menu").style.display = "none";
@@ -254,7 +263,7 @@ function endDrag(e) {
 
 // ---- Placement rule -----------------------------------------------------
 function tryPlace(book, slotIndex) {
-  if (isCorrectPlacement(book, slotIndex, state.level.books)) {
+  if (isCorrectPlacement(book, slotIndex, state.books)) {
     state.slots[slotIndex] = book;
     hideHint();
     renderShelf();

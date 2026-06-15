@@ -61,5 +61,79 @@
     return `${first.dewey} comes before ${second.dewey} — compare the numbers.`;
   }
 
-  return { compareBooks, correctOrder, isCorrectPlacement, hintFor };
+  const firstLetter = (b) => b.cutter.charAt(0).toUpperCase();
+  const gradeOk = (b, maxGrade) => maxGrade == null || b.grades[0] <= maxGrade;
+
+  // Digits after the decimal point: "636" -> 0, "597.9" -> 1, "636.78" -> 2.
+  const deweyDepth = (b) => {
+    const dot = b.dewey.indexOf(".");
+    return dot === -1 ? 0 : b.dewey.length - dot - 1;
+  };
+
+  // Fisher-Yates over a copy using the injected rng; returns the first n.
+  function sampleN(arr, n, rng) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy.slice(0, n);
+  }
+
+  // No two books may share a sort key (otherwise the puzzle is ambiguous).
+  function unambiguous(books) {
+    const ordered = correctOrder(books);
+    for (let i = 1; i < ordered.length; i++) {
+      if (compareBooks(ordered[i - 1], ordered[i]) === 0) return false;
+    }
+    return true;
+  }
+
+  // Group fiction candidates by first letter into { letter: Book[] }.
+  function byFirstLetter(books) {
+    return books.reduce((map, b) => {
+      (map[firstLetter(b)] ||= []).push(b);
+      return map;
+    }, {});
+  }
+
+  function sampleLevel(level, books, rng) {
+    const c = level.criteria;
+    for (let attempt = 0; attempt < 100; attempt++) {
+      let picked;
+      if (c.type === "fiction" && c.firstLetters === "distinct") {
+        const groups = byFirstLetter(books.filter((b) => b.callType === "fiction" && gradeOk(b, c.maxGrade)));
+        const letters = sampleN(Object.keys(groups), level.count, rng);
+        if (letters.length === level.count) {
+          picked = letters.map((l) => sampleN(groups[l], 1, rng)[0]);
+        }
+      } else if (c.type === "fiction" && c.firstLetters === "shared") {
+        const groups = byFirstLetter(books.filter((b) => b.callType === "fiction" && gradeOk(b, c.maxGrade)));
+        const clusters = Object.values(groups).filter((g) => g.length >= level.count);
+        if (clusters.length) {
+          picked = sampleN(sampleN(clusters, 1, rng)[0], level.count, rng);
+        }
+      } else if (c.type === "dewey") {
+        const pool = books.filter((b) => b.callType === "dewey"
+          && gradeOk(b, c.maxGrade) && deweyDepth(b) === c.deweyDecimals);
+        picked = sampleN(pool, level.count, rng);
+      } else if (c.type === "mixed") {
+        const nf = books.filter((b) => b.callType === "dewey"
+          && gradeOk(b, c.maxGrade) && deweyDepth(b) === c.deweyDecimals);
+        const fc = books.filter((b) => b.callType === "fiction" && gradeOk(b, c.maxGrade));
+        picked = sampleN(nf, level.count - c.ficCount, rng).concat(sampleN(fc, c.ficCount, rng));
+      }
+      if (picked && picked.length === level.count && unambiguous(picked)) return picked;
+    }
+    throw new Error(`could not sample level ${level.id}`);
+  }
+
+  // n positions spread evenly over [0, total-1]; [] for n<=0, [0] for n===1.
+  function anchorIndices(n, total) {
+    if (n <= 0) return [];
+    if (n === 1) return [0];
+    return Array.from({ length: n }, (_, i) => Math.round((i * (total - 1)) / (n - 1)));
+  }
+
+  return { compareBooks, correctOrder, isCorrectPlacement, hintFor, sampleLevel, anchorIndices };
 });
